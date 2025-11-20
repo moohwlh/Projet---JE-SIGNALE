@@ -2,8 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mode sombre par defaut */
-body {
-  background-color: #050505;
-  color: white;
+@layer base {
+  html {
+    font-family: var(--font-outfit), system-ui, sans-serif;
+  }
+  
+  body {
+    background-color: #050505;
+    color: white;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Pour forcer les animations */
+* {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
