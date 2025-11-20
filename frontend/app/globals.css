@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mode sombre par defaut */
+body {
+  background-color: #050505;
+  color: white;
+}
