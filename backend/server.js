@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const pool = require('./database');
 const authRoutes = require('./routes/auth');
 const app = express();
@@ -15,6 +16,7 @@ pool.query('SELECT NOW()', (err, res) => {
         console.log('Connexion réussie à la base de données ! Heure serveur :', res.rows[0].now);
     }
 });
+app.use(cors());
 app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/signalements', signalementRoutes);

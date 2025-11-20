@@ -26,7 +26,7 @@ export default function RootLayout({
           {/* SIDEBAR */}
           <aside className="w-64 bg-cyber-black border-r border-gray-800 flex flex-col p-6">
             {/* LOGO */}
-            <div className="text-2xl font-bold tracking-widest mb-10 text-white flex items-center gap-3">
+            <div className="text-2xl font-bold tracking-widest mb-10 text-white flex items-center gap-3 select-none">
               <span>JE</span>
               <ShieldAlert className="w-8 h-8 text-cyber-primary" />
               <span className="text-cyber-primary">SIGNALE</span>
@@ -34,23 +34,23 @@ export default function RootLayout({
 
             {/* NAVIGATION */}
             <nav className="flex-1 space-y-3">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-cyber-primary/10 text-cyber-primary">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-cyber-primary/10 text-cyber-primary select-none">
                 <LayoutDashboard className="w-5 h-5" /> 
                 <span>Tableau de bord</span>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer transition-colors">
+              <div className="flex items-center gap-3 p-3 select-none rounded-xl text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer transition-colors">
                 <FolderOpen className="w-5 h-5" /> 
                 <span>Mes signalements</span>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer transition-colors">
+              <div className="flex items-center gap-3 p-3 select-none rounded-xl text-gray-400 hover:bg-white/5 hover:text-white cursor-pointer transition-colors">
                 <Map className="w-5 h-5" /> 
                 <span>Carte des signalements</span>
               </div>
             </nav>
             
             {/* PROFIL */}
-            <div className="pt-6 mt-6 border-t border-gray-800 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-white">
+            <div className="pt-6 mt-6 border-t border-gray-800 flex items-center gap-3 select-none">
+              <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-white select-none">
                 U
               </div>
               <div>

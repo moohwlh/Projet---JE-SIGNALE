@@ -12,7 +12,7 @@ const config: Config = {
         cyber: {
           primary: '#FF3D00',
           black: '#050505',
-          border: '#1F2937', // Ajoutez cette couleur pour les bordures
+          border: '#1F2937', 
         }
       },
       boxShadow: {
@@ -21,6 +21,6 @@ const config: Config = {
       }
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')],
 };
 export default config;
