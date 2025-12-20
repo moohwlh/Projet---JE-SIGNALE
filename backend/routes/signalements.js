@@ -7,7 +7,9 @@ const verifyRole = require('../middleware/verifyRole'); // Import du garde de r�
 // ----------------------------------------------------
 // ROUTE 1 : CRÉATION (Accessible par tous les utilisateurs connectés)
 // ----------------------------------------------------
-router.post("/", async (req, res) => {
+const authenticate = require('../middleware/verifyToken'); 
+
+router.post("/", authenticate, async (req, res) => { // On ajoute "authenticate" ici
   try {
     const { type_infraction, description, lieu, date_infraction, heure_infraction } = req.body;
     const utilisateur_id = req.userId; 

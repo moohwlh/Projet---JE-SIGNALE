@@ -20,8 +20,7 @@ pool.query('SELECT NOW()', (err, res) => {
 app.use(cors());
 app.use(express.json());
 app.use('/auth', authRoutes);
-app.use('/signalementRoutes', signalementRoutes);
-app.use("/signalementRoutes", authorize, signalementRoutes);
+app.use('/signalements', signalementRoutes);
 app.listen(5000, () => {
     console.log("Le serveur est démarré sur le port 5000");
 });

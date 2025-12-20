@@ -28,7 +28,7 @@ export default function PageSignalment () {
     }
 
     try {
-    const response = await fetch("http://localhost:5000/signalement", {
+    const response = await fetch("http://localhost:5000/signalements", {
     method : "POST",
     headers : {
         "Content-Type": "application/json",
@@ -43,7 +43,9 @@ export default function PageSignalment () {
         router.push('/'); // on revient à l'accueil
     }
     else {
-        alert("Erreur lors de l'envoi du signalement.");
+       const errorText = await response.text(); 
+    console.error("Détail du refus serveur :", errorText);
+    alert("Le serveur a dit : " + errorText);
     }
     } catch (error) {
         console.error(error);
