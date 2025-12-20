@@ -48,7 +48,7 @@ router.post('/login', async (req, res) => {
             return res.status(401).json("Mot de passe incorrect");
         }
         const token = jwt.sign(
-            { id: user.rows[0].idUti },
+            { userId: user.rows[0].iduti },
             process.env.JWT_SECRET || "cle_secrete_temporaire", 
             { expiresIn: "1h" } // Le jeton est valable 1 heure
         );

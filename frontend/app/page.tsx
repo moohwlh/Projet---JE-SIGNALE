@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <div>
@@ -21,6 +23,13 @@ export default function Home() {
           <p className="text-4xl font-bold text-cyber-primary">88%</p>
         </div>
       </div>
+      <div className="mt-10">
+  <Link href="/signalements">
+    <button className="flex items-center gap-3 bg-[#FF4500] text-white px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform shadow-lg shadow-orange-900/20">
+      <span>🚨</span> SIGNER UN SIGNALEMENT
+    </button>
+  </Link>
+</div>
     </div>
   );
 }

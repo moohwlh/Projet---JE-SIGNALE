@@ -96,7 +96,7 @@ export default function PageSignalment () {
             <textarea name="description" rows={4} placeholder="Détaillez l'incident..." onChange={handleChange} className="bg-black border border-gray-700 p-3 rounded-lg outline-none focus:border-orange-500" required></textarea>
           </div>
 
-          <button type="submit" className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg">
+          <button type="submit" className="w-full bg-[#FF4500] hover:bg-[#FF5722] text-white font-bold py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(255,69,0,0.3)] uppercase tracking-widest">
             SOUMETTRE LE RAPPORT
           </button>
         </form>

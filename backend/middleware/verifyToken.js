@@ -11,11 +11,11 @@ module.exports = async (req, res, next) => {
 
   try {
     // 2. Vérification du Token (Validité/Expiration)
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = payload.id; 
+    const payload = jwt.verify(token, process.env.JWT_SECRET || "cle_secrete_temporaire");
+    const userId = payload.userId; 
 
     // 3. Récupération des infos utilisateur (rôle et email) pour l'autorisation
-    const userResult = await pool.query("SELECT email, role FROM utilisateurs WHERE idUti = $1", [userId]);
+    const userResult = await pool.query("SELECT email, role FROM utilisateurs WHERE iduti = $1", [userId]);
     
     if (userResult.rows.length === 0) {
         return res.status(403).json("Utilisateur non trouvé.");
