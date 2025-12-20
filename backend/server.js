@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./database');
 const authRoutes = require('./routes/auth');
+const authorize = require("./middleware/verifyToken");
 const app = express();
 const signalementRoutes = require('./routes/signalements');
 app.get('/', (req, res) => {
@@ -19,7 +20,8 @@ pool.query('SELECT NOW()', (err, res) => {
 app.use(cors());
 app.use(express.json());
 app.use('/auth', authRoutes);
-app.use('/signalements', signalementRoutes);
+app.use('/signalementRoutes', signalementRoutes);
+app.use("/signalementRoutes", authorize, signalementRoutes);
 app.listen(5000, () => {
     console.log("Le serveur est démarré sur le port 5000");
 });
