@@ -42,4 +42,19 @@ router.get("/", verifyRole, async (req, res) => { // <-- Seuls les Admins/Police
   }
 });
 
+
+router.get("/mes-signalements", authenticate, async (req, res) => {
+  try {
+    const userId = req.userId; // Récupéré par le middleware verifyToken
+    const userReports = await pool.query(
+      "SELECT * FROM signalements WHERE utilisateur_id = $1 ORDER BY date_infraction DESC",
+      [userId]
+    );
+    res.json(userReports.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json("Erreur lors de la récupération de vos signalements.");
+  }
+});
+
 module.exports = router;
