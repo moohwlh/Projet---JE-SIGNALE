@@ -61,7 +61,9 @@ export default function PoliceDashboard() {
           <tbody className="divide-y divide-gray-800">
             {reports.map((report: any) => (
               <tr key={report.idsig} className="hover:bg-blue-900/10">
-                <td className="p-4 text-gray-400 text-sm">{report.citoyen_email}</td>
+                 <td className="p-4 text-gray-400 text-sm">
+  {report.nom} {report.prenom}
+</td>
                 <td className="p-4 font-bold">{report.type_infraction}</td>
                 <td className="p-4 text-gray-300">{report.lieu}</td>
                 <td className="p-4">

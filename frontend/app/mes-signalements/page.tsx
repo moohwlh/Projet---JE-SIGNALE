@@ -32,7 +32,7 @@ export default function MesSignalements() {
   return (
     <div className="min-h-screen bg-black p-10 text-white">
       <h1 className="text-3xl font-bold mb-8 text-[#FF4500] uppercase tracking-widest">
-        Mis Signalements
+        Mes Signalements
       </h1>
 
 <table className="w-full text-left border-collapse bg-gray-900/50 rounded-xl overflow-hidden">

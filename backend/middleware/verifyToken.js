@@ -1,36 +1,44 @@
 const jwt = require("jsonwebtoken");
-const pool = require("../database"); // Import de la connexion BDD
+const pool = require("../database");
 
 module.exports = async (req, res, next) => {
-  // 1. Récupération du Token
-  const token = req.header("token");
-
-  if (!token) {
-    return res.status(403).json("Token manquant. Accès refusé.");
-  }
-
   try {
-    // 2. Vérification du Token (Validité/Expiration)
-    const payload = jwt.verify(token, process.env.JWT_SECRET || "cle_secrete_temporaire");
-    const userId = payload.userId; 
+    const token = req.header("token");
 
-    // 3. Récupération des infos utilisateur (rôle et email) pour l'autorisation
-    const userResult = await pool.query("SELECT email, role FROM utilisateurs WHERE iduti = $1", [userId]);
-    
-    if (userResult.rows.length === 0) {
-        return res.status(403).json("Utilisateur non trouvé.");
+    if (!token) {
+      console.log(" ERREUR: Aucun token reçu dans le header !");
+      return res.status(403).json("Accès refusé (Token manquant)");
     }
+
+    // 1. Vérifier la signature du token
+    const payload = jwt.verify(token, process.env.JWT_SECRET || "cle_secrete_temporaire");
     
-    // 4. Attacher l'ID et le Rôle à la requête (pour les routes suivantes)
-    req.userId = userId;
-    req.userRole = userResult.rows[0].role;
-    req.userEmail = userResult.rows[0].email;
+    // DEBUG : Voir ce qu'il y a dans le token
+    console.log("INFO TOKEN DÉCODÉ :", payload);
 
-    next(); // La vérification est réussie, on passe à la route
+    if (!payload.userId) {
+        console.log("ERREUR: Le token ne contient pas de userId !");
+        return res.status(403).json("Token malformé");
+    }
 
+    // 2. Vérifier si l'utilisateur existe en BDD et récupérer son rôle
+    const user = await pool.query("SELECT * FROM utilisateurs WHERE iduti = $1", [payload.userId]);
+
+    if (user.rows.length === 0) {
+        console.log(" ERREUR: Utilisateur introuvable en BDD pour l'ID :", payload.userId);
+        return res.status(403).json("Utilisateur introuvable");
+    }
+
+    // DEBUG : Voir le rôle trouvé en BDD
+    console.log(" SUCCÈS: Utilisateur trouvé. Rôle BDD =", user.rows[0].role);
+
+    // 3. Attacher les infos à la requête
+    req.userId = user.rows[0].iduti;
+    req.userRole = user.rows[0].role; // C'est ça que verifyRole va vérifier
+
+    next();
   } catch (err) {
-    // 5. Échec de la vérification (Token invalide ou expiré)
-    console.error(err.message);
-    return res.status(403).json("Token invalide ou expiré.");
+    console.error(" CRASH verifyToken :", err.message);
+    return res.status(403).json("Token invalide ou expiré");
   }
 };
