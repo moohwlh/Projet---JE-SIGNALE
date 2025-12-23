@@ -6,29 +6,36 @@ const jwt = require('jsonwebtoken');
 
 router.post('/register', async (req, res) => {
     try {
-        // Récupérer les infos envoyées par le client 
         const { nom, prenom, email, mot_de_passe, telephone } = req.body;
-        if ( mot_de_passe.length <6){
+
+        if (mot_de_passe.length < 6) {
             return res.status(401).json("Le mot de passe doit contenir au moins 6 caractères");
         }
-        //  Vérifier si l'utilisateur existe déjà 
+
+        // Vérifier si l'utilisateur existe déjà
         const userExist = await pool.query("SELECT * FROM utilisateurs WHERE email = $1", [email]);
         if (userExist.rows.length > 0) {
             return res.status(401).json("Cet email est déjà utilisé !");
         }
 
-        // Chiffrer le mot de passe 
-        const saltRound = 10; 
+        // Si l'email finit par "@police.com", on le met admin. Sinon, c'est un citoyen.
+        let role = "citoyen";
+        if (email.endsWith("@police.com")) {
+            role = "admin";
+        }
+
+        // Chiffrer le mot de passe
+        const saltRound = 10;
         const salt = await bcrypt.genSalt(saltRound);
         const bcryptPassword = await bcrypt.hash(mot_de_passe, salt);
 
-        // Insérer le nouvel utilisateur dans la base de données
+        // Insérer le nouvel utilisateur 
         const newUser = await pool.query(
-            "INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, telephone) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-            [nom, prenom, email, bcryptPassword, telephone]
+            "INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, telephone, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+            [nom, prenom, email, bcryptPassword, telephone, role]
         );
 
-        // Répondre au client que c'est bon 
+        // On renvoie le nouvel utilisateur 
         res.json(newUser.rows[0]);
 
     } catch (err) {
@@ -48,11 +55,16 @@ router.post('/login', async (req, res) => {
             return res.status(401).json("Mot de passe incorrect");
         }
         const token = jwt.sign(
-            { userId: user.rows[0].iduti },
+            { userId: user.rows[0].iduti,
+                role: user.rows[0].role
+             },
             process.env.JWT_SECRET || "cle_secrete_temporaire", 
             { expiresIn: "1h" } // Le jeton est valable 1 heure
         );
-       res.json({ token });
+       res.json({ 
+            token, 
+            role: user.rows[0].role 
+        });
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Erreur Serveur");

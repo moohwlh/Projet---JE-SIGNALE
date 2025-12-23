@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 export default function PageSignalment () {
     const router = useRouter();  
   const [reportData, setReportData] = useState({
-    type_infraction: '',
+    type_infraction: 'Vol',
     description: '',
     lieu : '',
     date_infraction: '',

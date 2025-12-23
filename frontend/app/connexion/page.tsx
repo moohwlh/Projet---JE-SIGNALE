@@ -34,14 +34,15 @@ export default function LoginPage() {
 
             const data = await response.json();
 
-            if (response.ok) {
-                // ✅ Succès : Stocker le Token JWT
-                localStorage.setItem("token", data.token); 
-                router.push("/"); // Rediriger vers le tableau de bord
+        if (response.ok) {
+            //  Succès : Stocker le Token JWT
+            localStorage.setItem("token", data.token); 
+            if (data.role === 'admin') {
+            router.push('/police'); // Si admin -> Police
             } else {
-                // ❌ Échec
-                alert(`Erreur de connexion : ${data.message || 'Identifiants invalides.'}`);
-            }
+             router.push('/');       // Sinon -> Accueil
+           }
+        }
 
         } catch (error) {
             console.error("Erreur de connexion au serveur :", error);
