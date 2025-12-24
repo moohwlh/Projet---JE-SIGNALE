@@ -2,31 +2,45 @@ const router = require('express').Router();
 const pool = require('../database');
 const verifyToken = require('../middleware/verifyToken'); 
 const verifyRole = require('../middleware/verifyRole');   
-
-// 1. CRÉATION D'UN SIGNALEMENT (Route Citoyen)
-router.post("/", verifyToken, async (req, res) => {
+const jwt = require('jsonwebtoken');
+router.post("/", async (req, res) => {
   try {
     const { type_infraction, description, lieu, date_infraction, heure_infraction } = req.body;
-    const utilisateur_id = req.userId; 
+    
+    //  LOGIQUE D'AUTHENTIFICATION OPTIONNELLE
+    let utilisateur_id = null;
+    const token = req.header("token");
 
-    // Création dossier
-    const newDossier = await pool.query("INSERT INTO dossiers DEFAULT VALUES RETURNING idDo");
+    if (token) {
+        try {
+            // On vérifie le token manuellement ici
+            const verified = jwt.verify(token, process.env.JWT_SECRET);
+            utilisateur_id = verified.userId;
+        } catch (err) {
+            console.log("Token invalide ou expiré, signalement traité comme anonyme.");
+        }
+    }
+
+    // Étape 1 : Création du dossier technique
+    const newDossier = await pool.query(
+      "INSERT INTO dossiers DEFAULT VALUES RETURNING idDo"
+    );
     const dossier_id = newDossier.rows[0].iddo;
 
-    // Création signalement
+    // Étape 2 : Création du signalement 
     const newReport = await pool.query(
       "INSERT INTO signalements (type_infraction, description, lieu, date_infraction, heure_infraction, utilisateur_id, dossier_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
       [type_infraction, description, lieu, date_infraction, heure_infraction, utilisateur_id, dossier_id]
     );
 
     res.json(newReport.rows[0]);
+
   } catch (err) {
     console.error(err.message);
-    res.status(500).json("Erreur serveur");
+    res.status(500).json("Erreur serveur lors de la création");
   }
 });
 
-// 👇 2. C'EST ICI LA NOUVELLE ROUTE (HISTORIQUE CITOYEN) 👇
 // Elle permet à l'utilisateur de récupérer UNIQUEMENT SES signalements
 router.get("/mes-signalements", verifyToken, async (req, res) => {
     try {
@@ -84,6 +98,43 @@ router.put("/:id/statut", verifyToken, verifyRole, async (req, res) => {
     console.error(err.message);
     res.status(500).send("Erreur Serveur");
   }
+});
+
+router.get("/public/stats", async (req, res) => {
+    try {
+        // 1. Compter les signalements "Actifs" (En attente ou En cours)
+        const actifs = await pool.query(
+            "SELECT COUNT(*) FROM dossiers WHERE statut IN ('En attente', 'En cours')"
+        );
+
+        // 2. Compter les "Résolus"
+        const resolus = await pool.query(
+            "SELECT COUNT(*) FROM dossiers WHERE statut = 'Résolu'"
+        );
+
+        // 3. Calculer le taux de réponse (Ceux qui ne sont plus 'En attente')
+        const total = await pool.query("SELECT COUNT(*) FROM dossiers");
+        const enAttente = await pool.query("SELECT COUNT(*) FROM dossiers WHERE statut = 'En attente'");
+        
+        const totalCount = parseInt(total.rows[0].count);
+        const waitingCount = parseInt(enAttente.rows[0].count);
+        
+        // Si 0 signalement, taux = 0% pour éviter la division par zéro
+        let taux = 0;
+        if (totalCount > 0) {
+            taux = Math.round(((totalCount - waitingCount) / totalCount) * 100);
+        }
+
+        res.json({
+            actifs: parseInt(actifs.rows[0].count),
+            resolus: parseInt(resolus.rows[0].count),
+            taux: taux
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Erreur Serveur");
+    }
 });
 
 module.exports = router;

@@ -39,6 +39,16 @@ export default function PoliceDashboard() {
     });
     fetchAllReports(); // On rafraîchit la liste après modif
   };
+  // Fonction pour formater la date proprement
+const formatDate = (dateString: string) => {
+  if (!dateString) return "Date inconnue";
+  return new Date(dateString).toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  
+  });
+};
 
   return (
     <div className="min-h-screen bg-black p-6 text-white">
@@ -54,6 +64,7 @@ export default function PoliceDashboard() {
               <th className="p-4">Citoyen</th>
               <th className="p-4">Infraction</th>
               <th className="p-4">Lieu</th>
+              <th className="p-4">Date</th>
               <th className="p-4">Statut</th>
               <th className="p-4 text-center">Actions</th>
             </tr>
@@ -66,6 +77,9 @@ export default function PoliceDashboard() {
 </td>
                 <td className="p-4 font-bold">{report.type_infraction}</td>
                 <td className="p-4 text-gray-300">{report.lieu}</td>
+                <td className="p-4 text-gray-300 text-sm">
+        {formatDate(report.date_infraction)}
+      </td>
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded text-xs font-bold ${
                     report.statut === 'Résolu' ? 'text-green-500 bg-green-900/20' : 'text-yellow-500 bg-yellow-900/20'

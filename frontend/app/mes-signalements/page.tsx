@@ -28,6 +28,16 @@ export default function MesSignalements() {
     };
     fetchReports();
   }, []);
+  // Fonction pour formater la date proprement
+const formatDate = (dateString: string) => {
+  if (!dateString) return "Date inconnue";
+  return new Date(dateString).toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+ 
+  });
+};
 
   return (
     <div className="min-h-screen bg-black p-10 text-white">
@@ -54,9 +64,7 @@ export default function MesSignalements() {
 
         <td className="p-4">{report.lieu}</td>
         
-        <td className="p-4">
-            {new Date(report.date_infraction).toLocaleDateString()}
-        </td>
+        <td>{formatDate(report.date_infraction)}</td>
 
         <td className="p-4">
           <span className={`px-3 py-1 rounded-full text-xs font-bold ${

@@ -37,6 +37,9 @@ export default function LoginPage() {
         if (response.ok) {
             //  Succès : Stocker le Token JWT
             localStorage.setItem("token", data.token); 
+            localStorage.setItem("role", data.role);
+            localStorage.setItem("nom", data.nom);
+            localStorage.setItem("prenom", data.prenom);
             if (data.role === 'admin') {
             router.push('/police'); // Si admin -> Police
             } else {

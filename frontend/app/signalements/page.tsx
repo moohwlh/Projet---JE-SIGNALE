@@ -1,108 +1,143 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ShieldAlert, MapPin, Calendar, FileText, Siren } from "lucide-react";
 
-export default function PageSignalment () {
-    const router = useRouter();  
-  const [reportData, setReportData] = useState({
-    type_infraction: 'Vol',
-    description: '',
-    lieu : '',
-    date_infraction: '',
-    heure_infraction: '',
+export default function Signalement() {
+  const router = useRouter();
+  
+  // États du formulaire
+  const [form, setForm] = useState({
+    type_infraction: "Vol",
+    lieu: "",
+    date_infraction: "",
+    heure_infraction: "",
+    description: ""
   });
 
   const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setReportData(prev => ({ ...prev, [name]: value }));
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    // Logique de soumission du formulaire
-    const token = localStorage.getItem("token"); // On récupère le token 
-    if(!token) { 
-        alert("Vous devez être connecté pour faire un signalement.");
-        router.push('/connexion'); 
-        return; 
+
+    //  1. On récupère le token (s'il y en a un)
+    const token = localStorage.getItem("token");
+
+    //  2. On prépare les headers
+    const headers: any = { "Content-Type": "application/json" };
+    
+    // Si l'utilisateur est connecté, on ajoute son token. Sinon, on envoie sans token (Anonyme).
+    if (token) {
+        headers["token"] = token;
     }
 
     try {
-    const response = await fetch("http://localhost:5000/signalements", {
-    method : "POST",
-    headers : {
-        "Content-Type": "application/json",
-        "token": token
-    },
-    body : JSON.stringify(reportData)
-    }
-    );
+      const response = await fetch("http://localhost:5000/signalements", {
+        method: "POST",
+        headers: headers, // On envoie les headers préparés
+        body: JSON.stringify(form)
+      });
 
-    if (response.ok) {
+      if (response.ok) {
         alert("Signalement envoyé avec succès !");
-        router.push('/'); // on revient à l'accueil
+        // Redirection intelligente : Mes signalements si connecté, sinon Accueil
+        if (token) {
+            router.push('/mes-signalements');
+        } else {
+            router.push('/');
+        }
+      } else {
+        alert("Erreur lors de l'envoi.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur serveur.");
     }
-    else {
-       const errorText = await response.text(); 
-    console.error("Détail du refus serveur :", errorText);
-    alert("Le serveur a dit : " + errorText);
-    }
-    } catch (error) {
-        console.error(error);
-        alert(" Le serveur est injoignable.");
-        
-    };
-    };
+  };
+
   return (
-    <div className="min-h-screen bg-black p-10 text-white">
-      <div className="max-w-2xl mx-auto bg-gray-900/50 p-8 rounded-2xl border border-orange-500/20 shadow-2xl">
-        <h1 className="text-3xl font-bold mb-8 text-orange-500 uppercase tracking-widest">
-          Nouveau Signalement
-        </h1>
+    <div className="min-h-screen bg-black p-6 flex items-center justify-center">
+      <div className="bg-gray-900 border border-gray-800 p-8 rounded-2xl w-full max-w-2xl shadow-2xl">
+        
+        <div className="flex items-center gap-3 mb-8 border-b border-gray-800 pb-6">
+            <div className="p-3 bg-[#FF4500]/10 rounded-lg">
+                <Siren className="w-8 h-8 text-[#FF4500]" />
+            </div>
+            <div>
+                <h1 className="text-2xl font-bold text-white">NOUVEAU SIGNALEMENT</h1>
+                <p className="text-gray-400 text-sm">Remplissez ce formulaire. Votre identité est protégée.</p>
+            </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* TYPE */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-400">Nature du délit</label>
-            <select name="type_infraction" onChange={handleChange} className="bg-black border border-gray-700 p-3 rounded-lg outline-none focus:border-orange-500">
-              <option value="Vol">Vol</option>
-              <option value="Agression">Agression</option>
-              <option value="Dégradation">Dégradation</option>
-              <option value="Autre">Autre</option>
-            </select>
-          </div>
-
-          {/* LIEU */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-400">Lieu exact</label>
-            <input type="text" name="lieu" placeholder="Adresse ou quartier..." onChange={handleChange} className="bg-black border border-gray-700 p-3 rounded-lg outline-none focus:border-orange-500" required />
-          </div>
-
-          {/* DATE & HEURE */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-400">Date</label>
-              <input type="date" name="date_infraction" onChange={handleChange} className="bg-black border border-gray-700 p-3 rounded-lg outline-none focus:border-orange-500" required />
+          
+          {/* TYPE INFRACTION */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label className="text-gray-400 text-sm font-medium mb-2 block">Type d'infraction</label>
+                <div className="relative">
+                    <select name="type_infraction" onChange={handleChange} className="w-full bg-black border border-gray-700 text-white p-3 rounded-xl focus:border-[#FF4500] focus:ring-1 focus:ring-[#FF4500] outline-none appearance-none">
+                        <option>Vol</option>
+                        <option>Agression</option>
+                        <option>Dégradation</option>
+                        <option>Accident</option>
+                        <option>Tapage nocturne</option>
+                        <option>Autre</option>
+                    </select>
+                    <ShieldAlert className="absolute right-3 top-3.5 text-gray-500 w-5 h-5 pointer-events-none" />
+                </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-400">Heure</label>
-              <input type="time" name="heure_infraction" onChange={handleChange} className="bg-black border border-gray-700 p-3 rounded-lg outline-none focus:border-orange-500" required />
+
+            {/* LIEU */}
+            <div>
+                <label className="text-gray-400 text-sm font-medium mb-2 block">Lieu de l'incident</label>
+                <div className="relative">
+                    <input type="text" name="lieu" placeholder="Ex: Rue de la Liberté" required onChange={handleChange} 
+                        className="w-full bg-black border border-gray-700 text-white p-3 pl-10 rounded-xl focus:border-[#FF4500] outline-none" 
+                    />
+                    <MapPin className="absolute left-3 top-3.5 text-gray-500 w-5 h-5" />
+                </div>
+            </div>
+          </div>
+
+          {/* DATE ET HEURE */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label className="text-gray-400 text-sm font-medium mb-2 block">Date</label>
+                <div className="relative">
+                    <input type="date" name="date_infraction" required onChange={handleChange} 
+                        className="w-full bg-black border border-gray-700 text-white p-3 pl-10 rounded-xl focus:border-[#FF4500] outline-none" 
+                    />
+                    <Calendar className="absolute left-3 top-3.5 text-gray-500 w-5 h-5" />
+                </div>
+            </div>
+            <div>
+                <label className="text-gray-400 text-sm font-medium mb-2 block">Heure approximative</label>
+                <input type="time" name="heure_infraction" required onChange={handleChange} 
+                    className="w-full bg-black border border-gray-700 text-white p-3 rounded-xl focus:border-[#FF4500] outline-none" 
+                />
             </div>
           </div>
 
           {/* DESCRIPTION */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-400">Description des faits</label>
-            <textarea name="description" rows={4} placeholder="Détaillez l'incident..." onChange={handleChange} className="bg-black border border-gray-700 p-3 rounded-lg outline-none focus:border-orange-500" required></textarea>
+          <div>
+            <label className="text-gray-400 text-sm font-medium mb-2 block">Description détaillée</label>
+            <div className="relative">
+                <textarea name="description" rows={4} placeholder="Décrivez ce qu'il s'est passé..." required onChange={handleChange} 
+                    className="w-full bg-black border border-gray-700 text-white p-3 pl-10 rounded-xl focus:border-[#FF4500] outline-none resize-none"
+                ></textarea>
+                <FileText className="absolute left-3 top-3.5 text-gray-500 w-5 h-5" />
+            </div>
           </div>
 
-          <button type="submit" className="w-full bg-[#FF4500] hover:bg-[#FF5722] text-white font-bold py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(255,69,0,0.3)] uppercase tracking-widest">
-            SOUMETTRE LE RAPPORT
+          <button type="submit" className="w-full bg-[#FF4500] hover:bg-[#ff571a] text-white font-bold py-4 rounded-xl shadow-lg shadow-[#FF4500]/20 transition-all transform hover:scale-[1.02]">
+            ENVOYER LE SIGNALEMENT
           </button>
+
         </form>
       </div>
     </div>
-   
- 
   );
-};
+}
